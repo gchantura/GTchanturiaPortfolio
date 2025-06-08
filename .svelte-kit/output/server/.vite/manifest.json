@@ -1,0 +1,183 @@
+{
+  ".svelte-kit/generated/server/internal.js": {
+    "file": "internal.js",
+    "imports": [
+      "_internal.js"
+    ],
+    "isEntry": true,
+    "src": ".svelte-kit/generated/server/internal.js"
+  },
+  "_Icon.js": {
+    "file": "chunks/Icon.js",
+    "imports": [
+      "_ssr.js"
+    ]
+  },
+  "_brain.js": {
+    "file": "chunks/brain.js",
+    "imports": [
+      "_ssr.js",
+      "_Icon.js"
+    ]
+  },
+  "_database.js": {
+    "file": "chunks/database.js",
+    "imports": [
+      "_ssr.js",
+      "_Icon.js"
+    ]
+  },
+  "_github.js": {
+    "file": "chunks/github.js",
+    "imports": [
+      "_ssr.js",
+      "_Icon.js"
+    ]
+  },
+  "_index.js": {
+    "file": "chunks/index.js",
+    "imports": [
+      "_ssr.js"
+    ]
+  },
+  "_internal.js": {
+    "file": "chunks/internal.js",
+    "imports": [
+      "_ssr.js"
+    ]
+  },
+  "_mail.js": {
+    "file": "chunks/mail.js",
+    "imports": [
+      "_ssr.js",
+      "_Icon.js"
+    ]
+  },
+  "_search.js": {
+    "file": "chunks/search.js",
+    "imports": [
+      "_ssr.js",
+      "_Icon.js"
+    ]
+  },
+  "_smartphone.js": {
+    "file": "chunks/smartphone.js",
+    "imports": [
+      "_ssr.js",
+      "_Icon.js"
+    ]
+  },
+  "_ssr.js": {
+    "file": "chunks/ssr.js"
+  },
+  "_stores.js": {
+    "file": "chunks/stores.js",
+    "imports": [
+      "_ssr.js"
+    ]
+  },
+  "_zap.js": {
+    "file": "chunks/zap.js",
+    "imports": [
+      "_ssr.js",
+      "_Icon.js"
+    ]
+  },
+  "node_modules/@sveltejs/kit/src/runtime/components/error.svelte": {
+    "file": "entries/fallbacks/error.svelte.js",
+    "imports": [
+      "_ssr.js",
+      "_stores.js"
+    ],
+    "isEntry": true,
+    "src": "node_modules/@sveltejs/kit/src/runtime/components/error.svelte"
+  },
+  "node_modules/@sveltejs/kit/src/runtime/server/index.js": {
+    "file": "index.js",
+    "imports": [
+      "_internal.js",
+      "_index.js"
+    ],
+    "isEntry": true,
+    "src": "node_modules/@sveltejs/kit/src/runtime/server/index.js"
+  },
+  "src/routes/+layout.css": {
+    "file": "_app/immutable/assets/_layout.3878d54e.css",
+    "src": "src/routes/+layout.css"
+  },
+  "src/routes/+layout.svelte": {
+    "css": [
+      "_app/immutable/assets/_layout.3878d54e.css"
+    ],
+    "file": "entries/pages/_layout.svelte.js",
+    "imports": [
+      "_ssr.js",
+      "_stores.js",
+      "_index.js",
+      "_Icon.js",
+      "_brain.js",
+      "_mail.js",
+      "_github.js"
+    ],
+    "isEntry": true,
+    "src": "src/routes/+layout.svelte"
+  },
+  "src/routes/+page.svelte": {
+    "file": "entries/pages/_page.svelte.js",
+    "imports": [
+      "_ssr.js",
+      "_Icon.js",
+      "_database.js",
+      "_smartphone.js",
+      "_github.js"
+    ],
+    "isEntry": true,
+    "src": "src/routes/+page.svelte"
+  },
+  "src/routes/contact/+page.svelte": {
+    "file": "entries/pages/contact/_page.svelte.js",
+    "imports": [
+      "_ssr.js",
+      "_Icon.js",
+      "_mail.js",
+      "_github.js"
+    ],
+    "isEntry": true,
+    "src": "src/routes/contact/+page.svelte"
+  },
+  "src/routes/games/+page.svelte": {
+    "file": "entries/pages/games/_page.svelte.js",
+    "imports": [
+      "_ssr.js",
+      "_Icon.js",
+      "_zap.js",
+      "_brain.js"
+    ],
+    "isEntry": true,
+    "src": "src/routes/games/+page.svelte"
+  },
+  "src/routes/guides/+page.svelte": {
+    "file": "entries/pages/guides/_page.svelte.js",
+    "imports": [
+      "_ssr.js",
+      "_search.js",
+      "_Icon.js",
+      "_database.js",
+      "_smartphone.js"
+    ],
+    "isEntry": true,
+    "src": "src/routes/guides/+page.svelte"
+  },
+  "src/routes/tools/+page.svelte": {
+    "file": "entries/pages/tools/_page.svelte.js",
+    "imports": [
+      "_ssr.js",
+      "_Icon.js",
+      "_search.js",
+      "_database.js",
+      "_zap.js"
+    ],
+    "isEntry": true,
+    "src": "src/routes/tools/+page.svelte"
+  }
+}
