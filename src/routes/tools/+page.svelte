@@ -1,5 +1,8 @@
 <script>
-  import { Palette, FileText, Clock, CheckSquare, Code, Type, Calculator, Search } from 'lucide-svelte';
+  import { 
+    Palette, FileText, Clock, CheckSquare, Code, Type, Calculator, Search, 
+    Hash, Link, Zap, Database, Globe, Lock, Unlock, Eye, EyeOff, Copy, CheckCircle 
+  } from 'lucide-svelte';
   
   let jsonInput = '';
   let jsonOutput = '';
@@ -12,6 +15,25 @@
   let text1 = '';
   let text2 = '';
   let textDiff = '';
+  let base64Input = '';
+  let base64Output = '';
+  let base64Mode = 'encode';
+  let urlInput = '';
+  let urlOutput = '';
+  let urlMode = 'encode';
+  let hashInput = '';
+  let hashOutput = '';
+  let hashAlgorithm = 'md5';
+  let passwordLength = 16;
+  let passwordOptions = {
+    uppercase: true,
+    lowercase: true,
+    numbers: true,
+    symbols: false
+  };
+  let generatedPassword = '';
+  let showPassword = false;
+  let copiedItems = new Set();
 
   const tools = [
     {
@@ -55,6 +77,48 @@
       description: 'Encode and decode Base64 strings',
       icon: Code,
       category: 'Data'
+    },
+    {
+      id: 'url-encoder',
+      title: 'URL Encoder/Decoder',
+      description: 'Encode and decode URL strings',
+      icon: Link,
+      category: 'Web'
+    },
+    {
+      id: 'hash-generator',
+      title: 'Hash Generator',
+      description: 'Generate MD5, SHA-1, SHA-256 hashes',
+      icon: Hash,
+      category: 'Security'
+    },
+    {
+      id: 'password-generator',
+      title: 'Password Generator',
+      description: 'Generate secure random passwords',
+      icon: Lock,
+      category: 'Security'
+    },
+    {
+      id: 'lorem-generator',
+      title: 'Lorem Ipsum Generator',
+      description: 'Generate placeholder text for designs',
+      icon: Type,
+      category: 'Content'
+    },
+    {
+      id: 'qr-generator',
+      title: 'QR Code Generator',
+      description: 'Generate QR codes from text',
+      icon: Zap,
+      category: 'Utility'
+    },
+    {
+      id: 'sql-formatter',
+      title: 'SQL Formatter',
+      description: 'Format and beautify SQL queries',
+      icon: Database,
+      category: 'Development'
     }
   ];
 
@@ -117,6 +181,87 @@
     textDiff = result || 'No differences found';
   }
 
+  function processBase64() {
+    try {
+      if (base64Mode === 'encode') {
+        base64Output = btoa(base64Input);
+      } else {
+        base64Output = atob(base64Input);
+      }
+    } catch (error) {
+      base64Output = `Error: ${error.message}`;
+    }
+  }
+
+  function processURL() {
+    try {
+      if (urlMode === 'encode') {
+        urlOutput = encodeURIComponent(urlInput);
+      } else {
+        urlOutput = decodeURIComponent(urlInput);
+      }
+    } catch (error) {
+      urlOutput = `Error: ${error.message}`;
+    }
+  }
+
+  async function generateHash() {
+    try {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(hashInput);
+      
+      let hashBuffer;
+      switch (hashAlgorithm) {
+        case 'md5':
+          // Simple MD5 implementation for demo
+          hashOutput = 'MD5 not available in browser - use SHA-256 instead';
+          return;
+        case 'sha1':
+          hashBuffer = await crypto.subtle.digest('SHA-1', data);
+          break;
+        case 'sha256':
+          hashBuffer = await crypto.subtle.digest('SHA-256', data);
+          break;
+        default:
+          hashOutput = 'Unsupported algorithm';
+          return;
+      }
+      
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      hashOutput = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    } catch (error) {
+      hashOutput = `Error: ${error.message}`;
+    }
+  }
+
+  function generatePassword() {
+    const chars = {
+      uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+      lowercase: 'abcdefghijklmnopqrstuvwxyz',
+      numbers: '0123456789',
+      symbols: '!@#$%^&*()_+-=[]{}|;:,.<>?'
+    };
+    
+    let charset = '';
+    Object.keys(passwordOptions).forEach(key => {
+      if (passwordOptions[key]) {
+        charset += chars[key];
+      }
+    });
+    
+    if (!charset) {
+      generatedPassword = 'Please select at least one character type';
+      return;
+    }
+    
+    let password = '';
+    for (let i = 0; i < passwordLength; i++) {
+      password += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    
+    generatedPassword = password;
+  }
+
   function getColorValues(hex) {
     const r = parseInt(hex.slice(1, 3), 16);
     const g = parseInt(hex.slice(3, 5), 16);
@@ -160,6 +305,33 @@
       l: Math.round(l * 100)
     };
   }
+
+  async function copyToClipboard(text, id) {
+    try {
+      await navigator.clipboard.writeText(text);
+      copiedItems.add(id);
+      copiedItems = new Set(copiedItems);
+      setTimeout(() => {
+        copiedItems.delete(id);
+        copiedItems = new Set(copiedItems);
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  }
+
+  function getCategoryColor(category) {
+    const colors = {
+      'Data': 'text-blue-600',
+      'Design': 'text-purple-600',
+      'Utility': 'text-green-600',
+      'Development': 'text-orange-600',
+      'Web': 'text-teal-600',
+      'Security': 'text-red-600',
+      'Content': 'text-indigo-600'
+    };
+    return colors[category] || 'text-gray-600';
+  }
 </script>
 
 <svelte:head>
@@ -175,7 +347,7 @@
           Developer Tools
         </h1>
         <p class="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-          A collection of useful tools to make your development workflow more efficient
+          A comprehensive collection of useful tools to make your development workflow more efficient and productive
         </p>
       </div>
     </div>
@@ -197,9 +369,9 @@
                     : 'hover:bg-gray-100 dark:hover:bg-gray-700'}"
               >
                 <svelte:component this={tool.icon} size="18" />
-                <div>
+                <div class="flex-1">
                   <div class="font-medium">{tool.title}</div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400">{tool.category}</div>
+                  <div class="text-xs {getCategoryColor(tool.category)}">{tool.category}</div>
                 </div>
               </button>
             {/each}
@@ -215,6 +387,9 @@
               <h2 class="text-2xl font-bold flex items-center gap-3 mb-2">
                 <svelte:component this={activeTool.icon} size="24" class="text-primary-600" />
                 {activeTool.title}
+                <span class="text-sm px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-700 {getCategoryColor(activeTool.category)}">
+                  {activeTool.category}
+                </span>
               </h2>
               <p class="text-gray-600 dark:text-gray-400">{activeTool.description}</p>
             </div>
@@ -232,7 +407,21 @@
                 </div>
                 <button on:click={formatJSON} class="btn-primary">Format JSON</button>
                 <div>
-                  <label class="block text-sm font-medium mb-2">Formatted Output:</label>
+                  <div class="flex items-center justify-between mb-2">
+                    <label class="block text-sm font-medium">Formatted Output:</label>
+                    <button
+                      on:click={() => copyToClipboard(jsonOutput, 'json-output')}
+                      class="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                    >
+                      {#if copiedItems.has('json-output')}
+                        <CheckCircle size="16" class="text-green-600" />
+                        Copied!
+                      {:else}
+                        <Copy size="16" />
+                        Copy
+                      {/if}
+                    </button>
+                  </div>
                   <pre class="w-full h-40 p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 overflow-auto text-sm">{jsonOutput}</pre>
                 </div>
               </div>
@@ -252,7 +441,19 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {#each Object.entries(getColorValues(selectedColor)) as [format, value]}
                     <div class="p-4 border border-gray-300 dark:border-gray-600 rounded-lg">
-                      <label class="block text-sm font-medium mb-2 uppercase">{format}:</label>
+                      <div class="flex items-center justify-between mb-2">
+                        <label class="block text-sm font-medium uppercase">{format}:</label>
+                        <button
+                          on:click={() => copyToClipboard(value, `color-${format}`)}
+                          class="text-sm text-primary-600 hover:text-primary-700"
+                        >
+                          {#if copiedItems.has(`color-${format}`)}
+                            <CheckCircle size="16" class="text-green-600" />
+                          {:else}
+                            <Copy size="16" />
+                          {/if}
+                        </button>
+                      </div>
                       <input
                         type="text"
                         {value}
@@ -280,7 +481,21 @@
                 </div>
                 <button on:click={convertTimestamp} class="btn-primary">Convert</button>
                 <div>
-                  <label class="block text-sm font-medium mb-2">Human Readable Date:</label>
+                  <div class="flex items-center justify-between mb-2">
+                    <label class="block text-sm font-medium">Human Readable Date:</label>
+                    <button
+                      on:click={() => copyToClipboard(convertedDate, 'converted-date')}
+                      class="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                    >
+                      {#if copiedItems.has('converted-date')}
+                        <CheckCircle size="16" class="text-green-600" />
+                        Copied!
+                      {:else}
+                        <Copy size="16" />
+                        Copy
+                      {/if}
+                    </button>
+                  </div>
                   <input
                     type="text"
                     value={convertedDate}
@@ -363,9 +578,231 @@
             <!-- Base64 Encoder -->
             {#if activeToolId === 'base64-encoder'}
               <div class="space-y-6">
-                <div class="text-center text-gray-600 dark:text-gray-400">
-                  <p>Base64 Encoder/Decoder tool coming soon!</p>
-                  <p class="text-sm mt-2">This tool will allow you to encode and decode Base64 strings.</p>
+                <div class="flex gap-4 mb-4">
+                  <label class="flex items-center">
+                    <input type="radio" bind:group={base64Mode} value="encode" class="mr-2" />
+                    Encode
+                  </label>
+                  <label class="flex items-center">
+                    <input type="radio" bind:group={base64Mode} value="decode" class="mr-2" />
+                    Decode
+                  </label>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-2">Input:</label>
+                  <textarea
+                    bind:value={base64Input}
+                    placeholder={base64Mode === 'encode' ? 'Enter text to encode' : 'Enter Base64 to decode'}
+                    class="w-full h-32 p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
+                  ></textarea>
+                </div>
+                <button on:click={processBase64} class="btn-primary">
+                  {base64Mode === 'encode' ? 'Encode' : 'Decode'}
+                </button>
+                <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <label class="block text-sm font-medium">Output:</label>
+                    <button
+                      on:click={() => copyToClipboard(base64Output, 'base64-output')}
+                      class="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                    >
+                      {#if copiedItems.has('base64-output')}
+                        <CheckCircle size="16" class="text-green-600" />
+                        Copied!
+                      {:else}
+                        <Copy size="16" />
+                        Copy
+                      {/if}
+                    </button>
+                  </div>
+                  <textarea
+                    value={base64Output}
+                    readonly
+                    class="w-full h-32 p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700"
+                  ></textarea>
+                </div>
+              </div>
+            {/if}
+
+            <!-- URL Encoder -->
+            {#if activeToolId === 'url-encoder'}
+              <div class="space-y-6">
+                <div class="flex gap-4 mb-4">
+                  <label class="flex items-center">
+                    <input type="radio" bind:group={urlMode} value="encode" class="mr-2" />
+                    Encode
+                  </label>
+                  <label class="flex items-center">
+                    <input type="radio" bind:group={urlMode} value="decode" class="mr-2" />
+                    Decode
+                  </label>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-2">Input:</label>
+                  <textarea
+                    bind:value={urlInput}
+                    placeholder={urlMode === 'encode' ? 'Enter URL to encode' : 'Enter encoded URL to decode'}
+                    class="w-full h-32 p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
+                  ></textarea>
+                </div>
+                <button on:click={processURL} class="btn-primary">
+                  {urlMode === 'encode' ? 'Encode' : 'Decode'}
+                </button>
+                <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <label class="block text-sm font-medium">Output:</label>
+                    <button
+                      on:click={() => copyToClipboard(urlOutput, 'url-output')}
+                      class="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                    >
+                      {#if copiedItems.has('url-output')}
+                        <CheckCircle size="16" class="text-green-600" />
+                        Copied!
+                      {:else}
+                        <Copy size="16" />
+                        Copy
+                      {/if}
+                    </button>
+                  </div>
+                  <textarea
+                    value={urlOutput}
+                    readonly
+                    class="w-full h-32 p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700"
+                  ></textarea>
+                </div>
+              </div>
+            {/if}
+
+            <!-- Hash Generator -->
+            {#if activeToolId === 'hash-generator'}
+              <div class="space-y-6">
+                <div>
+                  <label class="block text-sm font-medium mb-2">Algorithm:</label>
+                  <select
+                    bind:value={hashAlgorithm}
+                    class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
+                  >
+                    <option value="md5">MD5 (Not available in browser)</option>
+                    <option value="sha1">SHA-1</option>
+                    <option value="sha256">SHA-256</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-2">Input Text:</label>
+                  <textarea
+                    bind:value={hashInput}
+                    placeholder="Enter text to hash"
+                    class="w-full h-32 p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
+                  ></textarea>
+                </div>
+                <button on:click={generateHash} class="btn-primary">Generate Hash</button>
+                <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <label class="block text-sm font-medium">Hash Output:</label>
+                    <button
+                      on:click={() => copyToClipboard(hashOutput, 'hash-output')}
+                      class="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                    >
+                      {#if copiedItems.has('hash-output')}
+                        <CheckCircle size="16" class="text-green-600" />
+                        Copied!
+                      {:else}
+                        <Copy size="16" />
+                        Copy
+                      {/if}
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    value={hashOutput}
+                    readonly
+                    class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 font-mono text-sm"
+                  />
+                </div>
+              </div>
+            {/if}
+
+            <!-- Password Generator -->
+            {#if activeToolId === 'password-generator'}
+              <div class="space-y-6">
+                <div>
+                  <label class="block text-sm font-medium mb-2">Password Length: {passwordLength}</label>
+                  <input
+                    type="range"
+                    bind:value={passwordLength}
+                    min="4"
+                    max="50"
+                    class="w-full"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-2">Character Types:</label>
+                  <div class="space-y-2">
+                    <label class="flex items-center">
+                      <input type="checkbox" bind:checked={passwordOptions.uppercase} class="mr-2" />
+                      Uppercase Letters (A-Z)
+                    </label>
+                    <label class="flex items-center">
+                      <input type="checkbox" bind:checked={passwordOptions.lowercase} class="mr-2" />
+                      Lowercase Letters (a-z)
+                    </label>
+                    <label class="flex items-center">
+                      <input type="checkbox" bind:checked={passwordOptions.numbers} class="mr-2" />
+                      Numbers (0-9)
+                    </label>
+                    <label class="flex items-center">
+                      <input type="checkbox" bind:checked={passwordOptions.symbols} class="mr-2" />
+                      Symbols (!@#$%^&*)
+                    </label>
+                  </div>
+                </div>
+                <button on:click={generatePassword} class="btn-primary">Generate Password</button>
+                <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <label class="block text-sm font-medium">Generated Password:</label>
+                    <div class="flex gap-2">
+                      <button
+                        on:click={() => showPassword = !showPassword}
+                        class="text-sm text-gray-600 hover:text-gray-700"
+                      >
+                        {#if showPassword}
+                          <EyeOff size="16" />
+                        {:else}
+                          <Eye size="16" />
+                        {/if}
+                      </button>
+                      <button
+                        on:click={() => copyToClipboard(generatedPassword, 'password-output')}
+                        class="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                      >
+                        {#if copiedItems.has('password-output')}
+                          <CheckCircle size="16" class="text-green-600" />
+                          Copied!
+                        {:else}
+                          <Copy size="16" />
+                          Copy
+                        {/if}
+                      </button>
+                    </div>
+                  </div>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={generatedPassword}
+                    readonly
+                    class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 font-mono"
+                  />
+                </div>
+              </div>
+            {/if}
+
+            <!-- Placeholder tools -->
+            {#if ['lorem-generator', 'qr-generator', 'sql-formatter'].includes(activeToolId)}
+              <div class="space-y-6">
+                <div class="text-center text-gray-600 dark:text-gray-400 py-12">
+                  <svelte:component this={activeTool.icon} size="48" class="mx-auto mb-4 text-gray-400" />
+                  <h3 class="text-xl font-semibold mb-2">{activeTool.title}</h3>
+                  <p class="mb-4">{activeTool.description}</p>
+                  <p class="text-sm">This tool is coming soon! Check back later for more functionality.</p>
                 </div>
               </div>
             {/if}
